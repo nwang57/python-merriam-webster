@@ -16,7 +16,9 @@ class CollegiateTests(MWbaseTestCase):
         self.assertEquals(expected_url, url)
 
     def test_lookup(self):
-        pass
+        word_gen = self.mwapi.lookup("protocol")
+        word_list = list(word_gen)
+        self.assertEquals(2, len(word_list))
 
     def parse_response(self):
         pass
