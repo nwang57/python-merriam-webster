@@ -20,8 +20,13 @@ class CollegiateTests(MWbaseTestCase):
         word_list = list(word_gen)
         self.assertEqual(2, len(word_list))
 
-    def parse_response(self):
-        pass
+    def test_attribute_parsing(self):
+        word_gen = self.mwapi.lookup("protocol")
+        word_list = list(word_gen)
+        self.assertEqual(2, len(word_list))
+        word = word_list[0]
+        expected_def = ":a preliminary memorandum often formulated and signed by negotiators as a basis for a final convention or treaty"
+        self.assertEqual(expected_def, word['definitions'][1])
 
 
 if __name__ == '__main__':

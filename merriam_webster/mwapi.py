@@ -26,6 +26,16 @@ class MWwrapper:
         qstring = "%s?key=%s" % (word, self.key)
         return self.base_url + qstring
 
+    def _flatten_tree(self, root, exclude=None):
+        """return the text of the root by excluding some tags. Only flatten one level"""
+        res = [root.text.strip()]
+        for node in root:
+            if not exclude and node.tag not in exclude:
+                res.append(node.text.strip())
+            if node.tail:
+                res.append(node.tail.strip())
+        return " ".join(res).strip()
+
 
 class CollegiateApi(MWwrapper):
 
@@ -63,7 +73,7 @@ class CollegiateApi(MWwrapper):
 
     def _get_definitions(self, entry):
         df_tags = entry.find('def').findall('dt')
-        return [d.text for d in df_tags]
+        return [self._flatten_tree(d, exclude=['vi','sx']) for d in df_tags]
 
 
 
