@@ -13,12 +13,12 @@ class CollegiateTests(MWbaseTestCase):
         word = "python"
         expected_url = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/%s?key=08a56188-ee0a-46cb-a456-4780ace154df" % word
         url = self.mwapi.build_url(word)
-        self.assertEquals(expected_url, url)
+        self.assertEqual(expected_url, url)
 
     def test_lookup(self):
         word_gen = self.mwapi.lookup("protocol")
         word_list = list(word_gen)
-        self.assertEquals(2, len(word_list))
+        self.assertEqual(2, len(word_list))
 
     def parse_response(self):
         pass

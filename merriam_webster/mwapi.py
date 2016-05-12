@@ -62,7 +62,7 @@ class CollegiateApi(MWwrapper):
             yield params
 
     def _get_definitions(self, entry):
-        df_tags = entry.find('def').findall('df')
+        df_tags = entry.find('def').findall('dt')
         return [d.text for d in df_tags]
 
 
