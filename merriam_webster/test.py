@@ -5,10 +5,13 @@ from mwapi import CollegiateApi
 class MWbaseTestCase(unittest.TestCase):
     def setUp(self):
         """Initializes the instance of MWapi"""
-        self.mwapi = CollegiateApi("08a56188-ee0a-46cb-a456-4780ace154df")
+        pass
 
 
 class CollegiateTests(MWbaseTestCase):
+    def setUp(self):
+        self.mwapi = CollegiateApi("08a56188-ee0a-46cb-a456-4780ace154df")
+
     def test_build_url(self):
         word = "python"
         expected_url = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/%s?key=08a56188-ee0a-46cb-a456-4780ace154df" % word
@@ -16,15 +19,11 @@ class CollegiateTests(MWbaseTestCase):
         self.assertEqual(expected_url, url)
 
     def test_lookup(self):
-        word_gen = self.mwapi.lookup("protocol")
-        word_list = list(word_gen)
-        self.assertEqual(2, len(word_list))
+        word = self.mwapi.lookup("protocol")
+        self.assertEqual("protocol", word["word"])
 
     def test_attribute_parsing(self):
-        word_gen = self.mwapi.lookup("protocol")
-        word_list = list(word_gen)
-        self.assertEqual(2, len(word_list))
-        word = word_list[0]
+        word = self.mwapi.lookup("protocol")
         expected_def = ":a preliminary memorandum often formulated and signed by negotiators as a basis for a final convention or treaty"
         self.assertEqual(expected_def, word['definitions'][1])
 
@@ -35,12 +34,25 @@ class CollegiateTests(MWbaseTestCase):
 
     def test_invalid_apikey(self):
         self.mwapi.apikey = "22abc"
-        print(self.mwapi.build_url("wtx"))
         with self.assertRaises(ValueError) as e:
             _ = self.mwapi.lookup("protocol")
         self.assertEqual(str(e.exception), "Invalid API Key")
 
+class ThesaurusTests(MWbaseTestCase):
+    def setUp(self):
+        self.mwapi = ThesaurusApi("3a554019-ce58-4a54-99e5-d1754a6c098c")
 
+    def test_build_url(self):
+        word = "python"
+        expected_url = "http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/%s?key=3a554019-ce58-4a54-99e5-d1754a6c098c" % word
+        self.assertEqual(expected_url, self.mwpi.build_url(word))
+
+    def test_lookup(self):
+        word = self.mwpi.lookup("preclude")
+
+
+    def test_attribute_parsing(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
