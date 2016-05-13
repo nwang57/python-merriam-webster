@@ -28,6 +28,19 @@ class CollegiateTests(MWbaseTestCase):
         expected_def = ":a preliminary memorandum often formulated and signed by negotiators as a basis for a final convention or treaty"
         self.assertEqual(expected_def, word['definitions'][1])
 
+    def test_word_not_found(self):
+        with self.assertRaises(ValueError) as e:
+            _ = self.mwapi.lookup("protoco")
+        self.assertTrue(str(e.exception).startswith("Word Not Found. Do you mean"))
+
+    def test_invalid_apikey(self):
+        self.mwapi.apikey = "22abc"
+        print(self.mwapi.build_url("wtx"))
+        with self.assertRaises(ValueError) as e:
+            _ = self.mwapi.lookup("protocol")
+        self.assertEqual(str(e.exception), "Invalid API Key")
+
+
 
 if __name__ == '__main__':
     unittest.main()

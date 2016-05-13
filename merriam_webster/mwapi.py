@@ -12,7 +12,7 @@ class MWwrapper:
     __metaclass__ = ABCMeta
 
     def __init__(self, key):
-        self.key = key
+        self.apikey = key
 
     @abstractproperty
     def base_url():
@@ -21,9 +21,9 @@ class MWwrapper:
 
     def build_url(self, word):
         """Return the request url for a given word"""
-        if self.key is None:
+        if self.apikey is None:
             raise ValueError("Absence of API key")
-        qstring = "%s?key=%s" % (word, self.key)
+        qstring = "%s?key=%s" % (word, self.apikey)
         return self.base_url + qstring
 
     def _flatten_tree(self, root, exclude=None):
@@ -48,12 +48,13 @@ class CollegiateApi(MWwrapper):
         """return a generator of the related words"""
         url = self.build_url(word)
         response = requests.get(url)
-        #parse_error_code(response.status_code)
         try:
             root = ET.fromstring(response.content)
-        except ET.ParseError:
-            if re.search("Invalid API Key", response.content):
+        except ET.ParseError as e:
+            if re.search("Invalid API key", response.content.decode("utf-8")):
                 raise ValueError("Invalid API Key")
+            else:
+                raise e
         suggestion_tags = root.findall('suggestion')
         if suggestion_tags:
             suggestions = [s.text for s in suggestion_tags]
@@ -74,7 +75,5 @@ class CollegiateApi(MWwrapper):
     def _get_definitions(self, entry):
         df_tags = entry.find('def').findall('dt')
         return [self._flatten_tree(d, exclude=['vi','sx']) for d in df_tags]
-
-
 
 
