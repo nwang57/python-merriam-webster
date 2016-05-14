@@ -1,5 +1,5 @@
 import unittest
-from mwapi import CollegiateApi
+from mwapi import CollegiateApi, ThesaurusApi
 
 
 class MWbaseTestCase(unittest.TestCase):
@@ -24,7 +24,7 @@ class CollegiateTests(MWbaseTestCase):
 
     def test_attribute_parsing(self):
         word = self.mwapi.lookup("protocol")
-        expected_def = ":a preliminary memorandum often formulated and signed by negotiators as a basis for a final convention or treaty"
+        expected_def = ":a preliminary memorandum often formulated and signed by diplomatic negotiators as a basis for a final convention or treaty"
         self.assertEqual(expected_def, word['definitions'][1])
 
     def test_word_not_found(self):
@@ -45,11 +45,13 @@ class ThesaurusTests(MWbaseTestCase):
     def test_build_url(self):
         word = "python"
         expected_url = "http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/%s?key=3a554019-ce58-4a54-99e5-d1754a6c098c" % word
-        self.assertEqual(expected_url, self.mwpi.build_url(word))
+        self.assertEqual(expected_url, self.mwapi.build_url(word))
 
     def test_lookup(self):
-        word = self.mwpi.lookup("preclude")
-
+        word = self.mwapi.lookup("preclude")
+        self.assertEqual('preclude', word['word'])
+        self.assertEqual(1, len(word['senses']))
+        self.assertEqual('verb', word['functional_label'])
 
     def test_attribute_parsing(self):
         pass

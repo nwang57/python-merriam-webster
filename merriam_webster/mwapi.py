@@ -30,7 +30,7 @@ class MWwrapper:
         """return the text of the root by excluding some tags. Only flatten one level"""
         res = [root.text.strip()]
         for node in root:
-            if not exclude and node.tag not in exclude:
+            if not exclude or node.tag not in exclude:
                 res.append(node.text.strip())
             if node.tail:
                 res.append(node.tail.strip())
@@ -51,6 +51,7 @@ class MWwrapper:
         if suggestion_tags:
             suggestions = [s.text for s in suggestion_tags]
             raise ValueError("Word Not Found. Do you mean %s" % suggestions)
+
 
 class CollegiateApi(MWwrapper):
 
@@ -85,17 +86,17 @@ class CollegiateApi(MWwrapper):
         return [self._flatten_tree(d, exclude=['vi','sx']) for d in df_tags]
 
 
-class Thesaurus(object):
+class ThesaurusApi(MWwrapper):
 
     base_url = "http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/"
 
     def __init__(self, key):
-        super(Thesaurus, self).__init__(key)
+        super().__init__(key)
 
     def lookup(self, word):
         url = self.build_url(word)
         response = requests.get(url)
-        self._parse_reponse(response)
+        root = self._parse_reponse(response)
         self._check_word_found(root)
         return self.parse_xml(root, word)
 
@@ -106,11 +107,15 @@ class Thesaurus(object):
             if term.find('hw').text == word:
                 params= {}
                 params['word'] = word
-                params['functional_label'] = getattr(term.find('fl'), 'text', None)
-                params['senses'] = self._get_sense(self, entry):
+                params['functional_label'] = getattr(entry.find('fl'), 'text', None)
+                params['senses'] = self._get_sense(entry)
+                return params
 
     def _get_sense(self, entry):
-        pass
-
-
-
+        senses = []
+        for sense_tag in entry.findall('sens'):
+            sense_dict = {}
+            sense_dict['meaning'] = self._flatten_tree(sense_tag.find('mc'))
+            sense_dict['example'] = self._flatten_tree(sense_tag.find('vi'))
+            senses.append(sense_dict)
+        return senses
