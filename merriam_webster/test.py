@@ -1,5 +1,5 @@
 import unittest
-from mwapi import CollegiateApi, ThesaurusApi
+from mwapi import CollegiateApi, ThesaurusApi, LearnersApi
 
 
 class MWbaseTestCase(unittest.TestCase):
@@ -53,8 +53,23 @@ class ThesaurusTests(MWbaseTestCase):
         self.assertEqual(1, len(word['senses']))
         self.assertEqual('verb', word['functional_label'])
 
-    def test_attribute_parsing(self):
-        pass
+class LearnerApiTests(MWbaseTestCase):
+    def setUp(self):
+        self.mwapi = LearnersApi("c3b787ec-8c72-47b5-b3f5-ae989507735d")
+
+    def test_build_url(self):
+        word = "python"
+        expected_url = "http://www.dictionaryapi.com/api/v1/references/learners/xml/%s?key=c3b787ec-8c72-47b5-b3f5-ae989507735d" % word
+        self.assertEqual(expected_url, self.mwapi.build_url(word))
+
+    def test_lookup(self):
+        word = self.mwapi.lookup("protocol")
+        self.assertEqual('protocol', word['word'])
+        self.assertEqual('noun', word['functional_label'])
+        self.assertEqual(4, len(word['senses']))
+        self.assertEqual(':a plan for a scientific experiment or for medical treatment', word['senses'][1]['definition'])
+        self.assertEqual(2, len(word['senses'][1]['examples']))
+
 
 if __name__ == '__main__':
     unittest.main()

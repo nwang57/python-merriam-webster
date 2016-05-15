@@ -119,3 +119,42 @@ class ThesaurusApi(MWwrapper):
             sense_dict['example'] = self._flatten_tree(sense_tag.find('vi'))
             senses.append(sense_dict)
         return senses
+
+class LearnersApi(MWwrapper):
+
+    base_url = "http://www.dictionaryapi.com/api/v1/references/learners/xml/"
+
+    def __init__(self, key):
+        super().__init__(key)
+
+    def lookup(self, word):
+        url = self.build_url(word)
+        response = requests.get(url)
+        root = self._parse_reponse(response)
+        self._check_word_found(root)
+        return self.parse_xml(root, word)
+
+    def parse_xml(self, root, word):
+        for entry in root.findall("entry"):
+            if entry and entry.attrib['id'] == word:
+                params = {}
+                params["word"] = word
+                params["functional_label"] = getattr(entry.find('fl'), 'text', None)
+                params["senses"] = self._get_senses(entry)
+                return params
+
+    def _get_senses(self, entry):
+        senses = []
+        def_tag = entry.find("def")
+        if not def_tag:
+            return senses
+        for dt_tag in def_tag.findall("dt"):
+            sense = {}
+            sense['definition'] = dt_tag.text.strip()
+            sense['examples'] = self._get_examples(dt_tag)
+            senses.append(sense)
+        return senses
+
+    def _get_examples(self, dt_tag):
+        vi_tags = dt_tag.findall('vi')
+        return [self._flatten_tree(vi) for vi in vi_tags]
